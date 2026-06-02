@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Store Intelligence Dashboard</title>
+</head>
+<body>
+
+    <h1>Store Intelligence Dashboard</h1>
+
+    <h2>Total Entries</h2>
+    <div id="stats"></div>
+
+    <h2>Events</h2>
+    <pre id="events"></pre>
+
+    <script>
+        async function loadData() {
+
+            let stats = await fetch('/stats');
+            let statsData = await stats.json();
+
+            document.getElementById('stats').innerHTML =
+                statsData.total_entries;
+
+            let events = await fetch('/events');
+            let eventData = await events.json();
+
+            document.getElementById('events').innerHTML =
+                JSON.stringify(eventData, null, 2);
+        }
+
+        loadData();
+    </script>
+
+</body>
+</html>
