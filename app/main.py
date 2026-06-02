@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from fastapi import Request
+from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 import json
 import os
@@ -13,11 +15,13 @@ from app.logger import logger
 from fastapi import Body
 
 app = FastAPI()
+templates = Jinja2Templates(directory="app/templates")
 
 
 # Dashboard
 @app.get("/", response_class=HTMLResponse)
 def dashboard():
+
     logger.info("Dashboard opened")
 
     events = []
@@ -31,8 +35,10 @@ def dashboard():
 
     entry_count = sum(
         1 for e in events
-        if e["event_type"] == "ENTRY"
+        if e.get("event_type") == "ENTRY"
     )
+
+    
 
     # Queue data
     queue_count = 0
@@ -166,7 +172,21 @@ Live AI Monitoring Dashboard
 
 <div class="log">
 <h3>📜 Event Log</h3>
-<pre>{json.dumps(events, indent=2)}</pre>
+<table style="width:100%; border-collapse:collapse;">
+
+<tr>
+<th>Event</th>
+<th>Visitor</th>
+<th>Camera</th>
+<th>Time</th>
+</tr>
+
+{''.join([
+f"<tr><td>{e.get('event_type','')}</td><td>{e.get('visitor_id','')}</td><td>{e.get('camera_id','')}</td><td>{e.get('timestamp','')}</td></tr>"
+for e in events
+])}
+
+</table>
 </div>
 
 </body>
@@ -192,7 +212,11 @@ def get_events():
 
 # Stats API
 @app.get("/stats")
+@app.get("/stats")
 def get_stats():
+
+    logger.info("Stats API called")
+
     events = []
 
     try:
@@ -202,13 +226,19 @@ def get_stats():
     except:
         pass
 
-    entry_count = sum(
+    total_entries = sum(
         1 for e in events
-        if e["event_type"] == "ENTRY"
+        if e.get("event_type") == "ENTRY"
+    )
+
+    queue_count = sum(
+        1 for e in events
+        if e.get("event_type") == "QUEUE"
     )
 
     return {
-        "total_entries": entry_count
+        "total_entries": total_entries,
+        "queue_count": queue_count
     }
 
 

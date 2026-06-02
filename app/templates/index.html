@@ -2,35 +2,151 @@
 <html>
 <head>
     <title>Store Intelligence Dashboard</title>
-</head>
-<body>
 
-    <h1>Store Intelligence Dashboard</h1>
-
-    <h2>Total Entries</h2>
-    <div id="stats"></div>
-
-    <h2>Events</h2>
-    <pre id="events"></pre>
-
-    <script>
-        async function loadData() {
-
-            let stats = await fetch('/stats');
-            let statsData = await stats.json();
-
-            document.getElementById('stats').innerHTML =
-                statsData.total_entries;
-
-            let events = await fetch('/events');
-            let eventData = await events.json();
-
-            document.getElementById('events').innerHTML =
-                JSON.stringify(eventData, null, 2);
+    <style>
+        body {
+            background: #071126;
+            color: white;
+            font-family: Arial;
+            padding: 25px;
         }
 
-        loadData();
-    </script>
+        h1 {
+            color: #00e5ff;
+            margin-bottom: 20px;
+        }
+
+        .dashboard {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background: #102542;
+            border-radius: 15px;
+            padding: 20px;
+            width: 220px;
+            box-shadow: 0 4px 12px rgba(0,0,0,.4);
+        }
+
+        .title {
+            color: #ffd166;
+            font-size: 18px;
+        }
+
+        .value {
+            color: #00ff88;
+            font-size: 34px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: #102542;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th {
+            background: #1f3b5b;
+            padding: 12px;
+        }
+
+        td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #333;
+        }
+
+        tr:hover {
+            background: #17375c;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🛍️ Store Intelligence Dashboard</h1>
+
+    <div class="dashboard">
+
+        <div class="card">
+            <div class="title">Total Entries</div>
+            <div class="value" id="entries">Loading...</div>
+        </div>
+
+        <div class="card">
+            <div class="title">Queue Count</div>
+            <div class="value" id="queue">Loading...</div>
+        </div>
+
+        <div class="card">
+            <div class="title">Total Events</div>
+            <div class="value" id="events-count">Loading...</div>
+        </div>
+
+    </div>
+
+    <h2>📜 Event Log</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Event</th>
+                <th>Visitor</th>
+                <th>Camera</th>
+                <th>Time</th>
+            </tr>
+        </thead>
+
+        <tbody id="events-table">
+        </tbody>
+    </table>
+
+<script>
+
+async function loadData() {
+
+    let stats = await fetch('/stats');
+    let statsData = await stats.json();
+
+    document.getElementById('entries').innerHTML =
+        statsData.total_entries || 0;
+
+    document.getElementById('queue').innerHTML =
+        statsData.queue_count || 0;
+
+    let events = await fetch('/events');
+    let eventData = await events.json();
+
+    document.getElementById('events-count').innerHTML =
+        eventData.length;
+
+    let rows = "";
+
+    eventData.forEach(event => {
+
+        rows += `
+        <tr>
+            <td>${event.event_type || ""}</td>
+            <td>${event.visitor_id || ""}</td>
+            <td>${event.camera_id || ""}</td>
+            <td>${event.timestamp || ""}</td>
+        </tr>
+        `;
+    });
+
+    document.getElementById('events-table').innerHTML = rows;
+}
+
+loadData();
+
+</script>
 
 </body>
 </html>
