@@ -7,7 +7,7 @@ from zone_tracker import update_zone, reset_zones
 model = YOLO("yolov8n.pt")
 
 # Select camera
-VIDEO_PATH = "CAM 5.mp4"
+VIDEO_PATH = "data/entry 1.mp4"
 
 reset_zones()
 
@@ -89,7 +89,7 @@ while cap.isOpened():
                     )
 
             # CAM3
-            elif "CAM 3" in VIDEO_PATH:
+            elif "entry" in VIDEO_PATH.lower():
 
                 line_y = LINE_Y1 + (
                     (LINE_Y2 - LINE_Y1)
@@ -170,13 +170,15 @@ while cap.isOpened():
                     track_id
                 ] = current_side
 
-    cv2.circle(
-                annotated_frame,
-                (cx, cy),
-                5,
-                (0, 0, 255),
-                -1
-            )
+    if results[0].boxes.id is not None:
+
+     cv2.circle(
+        annotated_frame,
+        (cx, cy),
+        5,
+        (0, 0, 255),
+        -1
+    )
 
     # CAM3 entry line
     if "CAM 3" in VIDEO_PATH:
@@ -196,13 +198,14 @@ while cap.isOpened():
         queue_count = 0
 
         # Yellow rectangle
+        print("RECTANGLE DRAWN AT:", x1, y1, x2, y2)
         cv2.rectangle(
-            annotated_frame,
-            (50, 220),
-            (550, 540),
-            (0, 255, 255),
-            3
-        )
+    annotated_frame,
+    (600, 220),
+    (1120, 540),
+    (0, 0, 255),
+    10
+)
 
         # Count people inside rectangle
         for box in boxes:

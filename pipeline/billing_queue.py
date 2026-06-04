@@ -2,18 +2,19 @@ from ultralytics import YOLO
 import cv2
 import json
 from emit import emit_event
+print("BILLING QUEUE FILE RUNNING")
 
 # Load model
 model = YOLO("yolov8n.pt")
 
 # Open CAM5
-cap = cv2.VideoCapture("CAM 5.mp4")
+cap = cv2.VideoCapture("data/billing_area.mp4")
 
 ALERT_THRESHOLD = 2
 
 # Queue zone
-x1, y1 = 0, 220
-x2, y2 = 520, 540
+x1, y1 = 250, 180
+x2, y2 = 770, 500
 
 # Track queue joins
 queued_ids = set()
@@ -84,16 +85,12 @@ while cap.isOpened():
                     queued_ids.add(i)
 
                     emit_event(
-                        store_id="STORE_BLR_002",
-                        camera_id="CAM_BILLING_01",
-                        visitor_id=str(i),
-                        event_type="BILLING_QUEUE_JOIN",
-                        confidence=0.90,
-                        zone_id="QUEUE_ZONE_01",
-                        metadata={
-                            "queue_depth": queue_count
-                        }
-                    )
+    str(i),
+    "BILLING_QUEUE_JOIN",
+    "CAM_BILLING_01",
+    zone_id="QUEUE_ZONE_01",
+    queue_depth=queue_count
+)
 
                     print(
                         "QUEUE JOIN",
